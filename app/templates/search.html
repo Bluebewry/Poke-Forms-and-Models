@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h1>SEARCH PAGE</h1>
+
+  <!-- <form action="">
+    <input type="text">
+    <input type="submit">
+  </form> -->
+  <form method="POST" class="container col-3">
+    {{ form.hidden_tag() }}
+    {{ form.search_input(class='form-control', placeholder='Name a Pokemon') }}
+    {{ form.submit(class='btn btn-success')}}
+  </form>
+   
+  {% if pokemon_dict %}
+  <div class="card" style="width: 18rem;">
+    <img src={{ pokemon_dict["Front Shiny"] }} class="card-img-top" alt={{ pokemon_dict["Name"] }}>
+    
+    <div class="card-body">
+    <h5 class="card-title">Pokemon: {{ pokemon_dict["Name"] }}</h5>
+      <p class="card-text">
+        Ability: {{ pokemon_dict["Ability"] }} <br>
+        Base XP: {{ pokemon_dict["Base XP"] }} <br>
+        Base ATK: {{ pokemon_dict["Base ATK"] }} <br>
+        Base HP:{{ pokemon_dict["Base HP"] }} <br>
+        Base DEF: {{ pokemon_dict["Base DEF"] }} <br>
+      </p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+
+
+  {% endif %}
+
+
+{%  endblock %}
