@@ -18,7 +18,5 @@ login_manager.login_view = "loginPage"
 def load_user(user_id):
     return User.query.get(user_id)
 
-
-
 from . import routes
 from . import models

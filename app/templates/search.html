@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <h1>SEARCH PAGE</h1>
+  <h1 class="text-center mb-5">SEARCH PAGE</h1>
 
   <!-- <form action="">
     <input type="text">
@@ -10,23 +10,23 @@
   <form method="POST" class="container col-3">
     {{ form.hidden_tag() }}
     {{ form.search_input(class='form-control', placeholder='Name a Pokemon') }}
-    {{ form.submit(class='btn btn-success')}}
+    {{ form.submit(class='btn btn-success ml-5 col-9 mt-5')}}
   </form>
    
-  {% if pokemon_dict %}
+  {% if pokemon %}
   <div class="card" style="width: 18rem;">
-    <img src={{ pokemon_dict["Front Shiny"] }} class="card-img-top" alt={{ pokemon_dict["Name"] }}>
+    <img src={{ pokemon.front_shiny }} class="card-img-top" alt={{ pokemon["Name"] }}>
     
     <div class="card-body">
-    <h5 class="card-title">Pokemon: {{ pokemon_dict["Name"] }}</h5>
+    <h5 class="card-title">Pokemon: {{ pokemon.name }}</h5>
       <p class="card-text">
-        Ability: {{ pokemon_dict["Ability"] }} <br>
-        Base XP: {{ pokemon_dict["Base XP"] }} <br>
-        Base ATK: {{ pokemon_dict["Base ATK"] }} <br>
-        Base HP:{{ pokemon_dict["Base HP"] }} <br>
-        Base DEF: {{ pokemon_dict["Base DEF"] }} <br>
+        Ability: {{ pokemon.ability }} <br>
+        Base XP: {{ pokemon.base_xp }} <br>
+        Base ATK: {{ pokemon.base_atk }} <br>
+        Base HP:{{ pokemon.base_hp }} <br>
+        Base DEF: {{ pokemon.base_def }} <br>
       </p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <a href="#" class="btn btn-primary">Catch</a>
     </div>
   </div>
 

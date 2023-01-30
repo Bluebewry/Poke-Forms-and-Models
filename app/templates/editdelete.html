@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h1 class="text-center mb-5">EDIT PROFILE PAGE</h1>
+
+  <form method="POST" class="container col-2">
+    {{ form.hidden_tag() }}
+
+    {{ form.username(class='form-control', placeholder='Username') }}
+    {{ form.email(class='form-control', placeholder='Email') }}
+    {{ form.password(class='form-control', placeholder='Password') }}
+    {{ form.confirm_password(class='form-control', placeholder='Confirm Password') }}
+
+    {{ form.submit(class='form-control btn btn-primary') }}
+
+    <a href="{{ url_for('delProfile') }}" class="container btn btn-danger mt-5">Delete Profile</a>
+    </form>
+
+{% endblock %}

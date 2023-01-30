@@ -1,15 +1,15 @@
 from app import app
 from flask import render_template, request, redirect, url_for
-from .forms import UserCreationForm, p_name, LoginForm, PostForm
-from .models import User, Post
+from .forms import UserCreationForm, p_name, LoginForm, PostForm, EditProfileForm
+from .models import User, Post, Pokemon
 import requests as r
 from flask_login import login_user, logout_user, current_user, login_required
 
 
 @app.route("/")
 def homePage():
-    welcome = "Welcome"
-    return render_template("index.html", welcome = welcome)
+    
+    return render_template("index.html")
 
 @app.route("/signup", methods=["GET", "POST"])
 def signUpPage():
@@ -38,9 +38,10 @@ def searchPage():
         print(input)
             # return redirect(url_for('homePage'))
             # dont need to redirect
+        pokemon = Pokemon.query.filter(Pokemon.name==input).first()
+        if pokemon:
+            return render_template("search.html", form = form, pokemon = pokemon)
 
-    # import requests as r
-    # def findpokemon(pokemon):
         url = f'https://pokeapi.co/api/v2/pokemon/{input}'
         response = r.get(url)
         # print(response)
@@ -48,15 +49,20 @@ def searchPage():
             my_dict = response.json()
             # print(my_dict)
             pokemon_dict = {}
-            pokemon_dict["Name"] = my_dict["name"]
-            pokemon_dict["Ability"] = my_dict["abilities"][0]["ability"]["name"]
-            pokemon_dict["Base XP"] = my_dict["base_experience"]
-            pokemon_dict["Front Shiny"] = my_dict["sprites"]["front_shiny"]
-            pokemon_dict["Base ATK"] = my_dict["stats"][1]["base_stat"]
-            pokemon_dict["Base HP"] = my_dict["stats"][0]["base_stat"]
-            pokemon_dict["Base DEF"] = my_dict["stats"][2]["base_stat"]
+            
+            name = my_dict["name"]
+            ability = my_dict["abilities"][0]["ability"]["name"]
+            base_xp = my_dict["base_experience"]
+            front_shiny = my_dict["sprites"]["front_shiny"]
+            base_atk = my_dict["stats"][1]["base_stat"]
+            base_hp = my_dict["stats"][0]["base_stat"]
+            base_def = my_dict["stats"][2]["base_stat"]
             print(pokemon_dict)
-            return render_template("search.html", form = form, pokemon_dict = pokemon_dict)
+
+            print(pokemon_dict)
+            pokemon = Pokemon(name, ability, base_xp, front_shiny, base_atk, base_hp, base_def)
+            pokemon.saveToDB()
+            return render_template("search.html", form = form, pokemon = pokemon)
         else:
             return "The pokemon you're looking for does not exist."
 
@@ -83,8 +89,6 @@ def loginPage():
 
             else:
                 print("user does not exist")
-
-
 
     return render_template("login.html", login = login) 
 
@@ -150,3 +154,40 @@ def deletePost(post_id):
     post.deleteFromDB()
     
     return redirect(url_for('getPosts'))
+
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    form = EditProfileForm()
+    user = User.query.filter_by(id = current_user.id).first()
+    return render_template("profile.html", form = form, current_user = current_user)
+
+@app.route("/editprofile", methods=["GET", "POST"])
+@login_required
+def editProfileForm():
+    form = EditProfileForm()
+    user = User.query.filter_by(id = current_user.id).first()
+    print("Hi")
+    if request.method == "POST":
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
+        if username != "":
+            user.username = username
+        if email != "":
+            user.email = email
+        if password != "":
+            user.password = password
+        user.saveChanges()
+        return render_template('editdelete.html', form = form, current_user = current_user )
+    return render_template('editdelete.html', form = form, current_user = current_user )
+
+
+@app.route("/profile/editdelete", methods=["GET", "POST"])
+@login_required
+def delProfile():
+    user = User.query.filter_by(id = current_user.id).first()
+    if request.method == "POST":
+        if user:
+            user.deleteFromDB()
+            return redirect(url_for("loginPage"))
+    return render_template("editdelete.html") 
