@@ -1,10 +1,15 @@
 from app import app
-from flask import render_template, request, redirect, url_for
-from .forms import UserCreationForm, p_name, LoginForm, PostForm, EditProfileForm
-from .models import User, Post, Pokemon
+from flask import render_template, request, redirect, url_for, flash
+from .forms import UserCreationForm, p_name, LoginForm, PostForm, EditProfileForm, SearchForm
+from .models import User, Post, Pokemon, Likes, Team
 import requests as r
 from flask_login import login_user, logout_user, current_user, login_required
+from werkzeug.security import check_password_hash
+import requests
+import os 
 
+
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 
 @app.route("/")
 def homePage():
@@ -57,16 +62,19 @@ def searchPage():
             base_atk = my_dict["stats"][1]["base_stat"]
             base_hp = my_dict["stats"][0]["base_stat"]
             base_def = my_dict["stats"][2]["base_stat"]
-            print(pokemon_dict)
 
             print(pokemon_dict)
+            pokemon = Pokemon.query.filter(Pokemon.name==name).first()
+            if pokemon:
+                return render_template("search.html", form = form, pokemon = pokemon)
             pokemon = Pokemon(name, ability, base_xp, front_shiny, base_atk, base_hp, base_def)
             pokemon.saveToDB()
             return render_template("search.html", form = form, pokemon = pokemon)
         else:
             return "The pokemon you're looking for does not exist."
-
-
+        
+        
+            
     return render_template("search.html", form = form)
    
 @app.route("/login", methods=["GET", "POST"])
@@ -80,15 +88,16 @@ def loginPage():
 
             user = User.query.filter_by(username = username).first()
             if user:
-                if user.password == password:
+                if check_password_hash(user.password, password):
                     login_user(user)
-
+                    flash(f'Successfully logged in! Welcome back {user.username}!', category='success')
+                    return redirect(url_for('homePage'))
                 else:
 
-                    print(("wrong password"))
+                    flash("wrong password", category='danger')
 
             else:
-                print("user does not exist")
+                flash("user does not exist", category='danger')
 
     return render_template("login.html", login = login) 
 
@@ -116,7 +125,13 @@ def createPost():
 @app.route("/posts", methods=["GET"])
 def getPosts():
     posts = Post.query.all()
-
+    if current_user.is_authenticated:
+        my_likes = Likes.query.filter_by(user_id=current_user.id).all()
+        likes = {like.post_id for like in my_likes}
+        for post in posts:
+            if post.id in likes:
+                post.liked = True
+    
     return render_template('feed.html', posts = posts)
     
 @app.route("/posts/<int:post_id>", methods=["GET"])
@@ -191,3 +206,99 @@ def delProfile():
             user.deleteFromDB()
             return redirect(url_for("loginPage"))
     return render_template("editdelete.html") 
+
+@app.route("/posts/<int:post_id>/like", methods=["GET"])
+@login_required
+def likePost(post_id):
+    like_instance = Likes(current_user.id, post_id)
+    like_instance.saveToDB()
+    
+    return redirect(url_for('getPosts'))
+
+@app.route("/posts/<int:post_id>/unlike", methods=["GET"])
+@login_required
+def unlikePost(post_id):
+    like_instance = Likes.query.filter_by(post_id = post_id).filter_by(user_id=current_user.id).first()
+    like_instance.deleteFromDB()
+    return redirect(url_for('getPosts'))
+
+# @app.route('/teamPage/capture/<poke_name>', methods=["GET", "POST"])
+# @login_required
+# def teamPage(poke_name):
+#     poke = Pokemon.query.filter(Pokemon.name==poke_name).first()
+#     # check = Team.query.filter(pokemon_id == poke.id).first()
+#     # if 
+#     catch = Team(current_user.id, poke.id)
+#     catch.saveToDB()
+#     team_count = Team.query.filter_by(user_id=current_user.id).count()
+#     if team_count < 5:
+#         catch.saveToDB()
+#     # if team:
+#     #     team.deleteFromDB()
+
+
+#     return redirect(url_for('searchPage'))
+
+@app.route("/teampage/capture/<poke_name>", methods=["GET", "POST"])
+@login_required
+def teamPage(poke_name):
+    pokemon = Pokemon.query.filter(Pokemon.name == poke_name).first()
+    # check = Team.query.filter(pokemon.id == pokemon.id).first()
+    catch = Team(current_user.id, pokemon.id)
+    
+    if pokemon.caught:
+        flash('You already have that pokemon')
+    elif  Team.query.filter_by(user_id=current_user.id).count() >= 5:
+        flash('You can only have five pokemon on a team')
+    else:
+        catch = Team(current_user.id, pokemon.id)
+        catch.saveToDB()
+        pokemon.caught = True
+        pokemon.saveChanges()
+        flash(f'{pokemon.name.title()} has been caught and added to your collection.', category='success')
+        
+    return redirect(url_for('searchPage'))
+    
+@app.route('/teamPage', methods=["GET"])
+@login_required
+def myTeam():
+
+    # pokemon = Team.query.filter(user_id=current_user.id).all()
+    my_pokemon = Pokemon.query.join(Team).filter(Team.user_id==current_user.id).all()
+
+    return render_template('team.html', my_pokemon = my_pokemon)
+
+
+# @app.route('/catch/<int:pokemon_id>', methods=["GET", "POST"])
+# @login_required
+# def pokecatch(pokemon_id):
+#     pokemon = Pokemon.query.get(pokemon_id)
+    
+#     if pokemon.caught:
+#         flash(f'Sorry, {pokemon.name.title()} has already been caught.', category='warning')
+#     elif Catch.query.filter_by(user_id=current_user.id).count() >= 5:
+#         flash('Sorry, you can only catch up to 5 Pokemon.', category='warning')
+#     else:
+#         catch = Catch(user_id=current_user.id, pokemon_id=pokemon.id)
+#         catch.saveToDB()
+#         pokemon.caught = True
+#         pokemon.saveChanges()
+#         flash(f'{pokemon.name.title()} has been caught and added to your collection.', category='success')
+#     return redirect(url_for('pokemon'))
+
+
+@app.route("/news", methods=["GET", "POST"])
+def newsPage():
+    my_form = SearchForm()
+
+    if request.method == "POST":
+        if my_form.validate():
+            search_term = my_form.s.data
+            url = f"https://newsapi.org/v2/everything?q={search_term}&apiKey={NEWS_API_KEY}"
+            result = requests.get(url)
+            if result.ok:
+                data = result.json()
+                articles =  data['articles']
+                return render_template('news.html', html_form = my_form, articles = articles)
+
+    return render_template('news.html', html_form = my_form)

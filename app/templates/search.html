@@ -9,29 +9,29 @@
   </form> -->
   <form method="POST" class="container col-3">
     {{ form.hidden_tag() }}
-    {{ form.search_input(class='form-control', placeholder='Name a Pokemon') }}
+    {{ form.search_input(class='form-control', placeholder='Search a Pokemon') }}
     {{ form.submit(class='btn btn-success ml-5 col-9 mt-5')}}
   </form>
    
   {% if pokemon %}
-  <div class="card" style="width: 18rem;">
-    <img src={{ pokemon.front_shiny }} class="card-img-top" alt={{ pokemon["Name"] }}>
-    
-    <div class="card-body">
-    <h5 class="card-title">Pokemon: {{ pokemon.name }}</h5>
-      <p class="card-text">
-        Ability: {{ pokemon.ability }} <br>
-        Base XP: {{ pokemon.base_xp }} <br>
-        Base ATK: {{ pokemon.base_atk }} <br>
-        Base HP:{{ pokemon.base_hp }} <br>
-        Base DEF: {{ pokemon.base_def }} <br>
-      </p>
-      <a href="#" class="btn btn-primary">Catch</a>
+    <div class="card" style="width: 18rem;">
+      <img src={{ pokemon.front_shiny }} class="card-img-top" alt={{ pokemon["Name"] }}>
+      
+      <div class="card-body">
+      <h5 class="card-title">Pokemon: {{ pokemon.name }}</h5>
+        <p class="card-text">
+          Ability: {{ pokemon.ability }} <br>
+          Base XP: {{ pokemon.base_xp }} <br>
+          Base ATK: {{ pokemon.base_atk }} <br>
+          Base HP:{{ pokemon.base_hp }} <br>
+          Base DEF: {{ pokemon.base_def }} <br>
+        </p>
+        <a href="{{ url_for('teamPage', poke_name=pokemon.name) }}" class="btn btn-primary">Catch</a>
+        <!-- <a href="{{ url_for('teamPage', poke_name=pokemon.name) }}" class="btn btn-primary">Release</a> -->
+      </div>
     </div>
-  </div>
-
-
   {% endif %}
+
 
 
 {%  endblock %}

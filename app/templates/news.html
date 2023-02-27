@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h1 class="text-center mb-5">NEWS PAGE</h1>
+
+    <form method="POST">
+        {{ html_form.hidden_tag() }}
+        {{ html_form.s }}
+        {{ html_form.send }}
+    </form>
+    <div class="row">
+    {% if articles %}
+        {% for article in articles %}
+            <div class="card" style="width: 18rem;">
+                <img src="{{ article.urlToImage }}" class="card-img-top" alt="{{ article.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ article.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ article.author }} - {{ article.source.name }}</h6>
+                    <p class="card-text">
+                        {{ article['description'] }}
+                    </p>
+                    <a href="{{ article.url }}" class="btn btn-primary">Go to Article Page</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+
+{% endblock %}

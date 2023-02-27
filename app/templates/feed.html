@@ -4,14 +4,25 @@
     <h1 class="text-center mb-5">ALL POSTS</h1>
 
     {% for post in posts %}
-        <a class="card text-dark text-decoration-none" style="width: 18rem;" href="{{ url_for('getPost', post_id = post.id) }}">
-            <img src="{{ post.img_url }}" class="card-img-top" alt="{{ post.title }}">
-            <div class="card-body">
-            <h5 class="card-title">{{ post.title }} - {{ post.author.username }}</h5>
-            <p class="card-text">{{ post.caption }}</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-        </a>
+        <div class="card" style="width: 18rem;">
+            <a class="text-dark text-decoration-none" href="{{ url_for('getPost', post_id = post.id) }}">
+                <img src="{{ post.img_url }}" class="card-img-top" alt="{{ post.title }}">
+                <div class="card-body">
+                <h5 class="card-title">{{ post.title }} - {{ post.author.username }}</h5>
+                <p class="card-text">{{ post.caption }}</p>
+                <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </a>
+            <p>Like Count: {{ post.getLikeCounter() }}  </p>
+            {% if current_user.is_authenticated %}
+                {% if not post.liked %}
+                <a class="btn btn-success" href="{{ url_for('likePost', post_id=post.id) }}" >Like</a>
+                {% else %}
+                <a class="btn btn-danger" href="{{ url_for('unlikePost', post_id=post.id) }}" >Unlike</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
     {% endfor %}
 
 {% endblock %}
