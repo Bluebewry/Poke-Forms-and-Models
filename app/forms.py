@@ -26,10 +26,10 @@ class PostForm(FlaskForm):
     submit = SubmitField()
 
 class EditProfileForm(FlaskForm):
-    username = StringField("Username", validators= [DataRequired()])
-    email = StringField("Email", validators= [DataRequired()])
-    password = PasswordField("Password", validators= [DataRequired()])
-    confirm_password = PasswordField("Confirm Password", validators= [DataRequired(), EqualTo('password')])
+    username = StringField("Username")
+    email = StringField("Email")
+    password = PasswordField("Password")
+    confirm_password = PasswordField("Confirm Password", EqualTo('password'))
     submit = SubmitField()
 
 

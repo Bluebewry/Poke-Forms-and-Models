@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1 class="text-center mb-5">Battle</h1>
+
+    <div class="container">
+      <div class="row">
+        {% for pokemon in my_pokemon %}
+
+        <div class="card" style="width: 18rem;">
+          <img src={{ pokemon.front_shiny }} class="card-img-top" alt={{ pokemon["Name"] }}>
+
+          <div class="card-body">
+            <h5 class="card-title">Pokemon: {{ pokemon.name }}</h5>
+            <p class="card-text">
+              Ability: {{ pokemon.ability }} <br>
+              Base XP: {{ pokemon.base_xp }} <br>
+              Base ATK: {{ pokemon.base_atk }} <br>
+              Base HP:{{ pokemon.base_hp }} <br>
+              Base DEF: {{ pokemon.base_def }} <br>
+            </p>
+            <a href="{{ url_for('teamPage', poke_name=pokemon.name) }}" class="btn btn-primary">Remove</a>
+            <!-- <a href="{{ url_for('teamPage', poke_name=pokemon.name) }}" class="btn btn-primary">Release</a> -->
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+
+
+    <div class="container">
+      <div class="row">
+        {% for pokemon in my_pokemon %}
+
+        <div class="card" style="width: 18rem;">
+          <img src={{ pokemon.front_shiny }} class="card-img-top" alt={{ pokemon["Name"] }}>
+
+          <div class="card-body">
+            <h5 class="card-title">Pokemon: {{ pokemon.name }}</h5>
+            <p class="card-text">
+              Ability: {{ pokemon.ability }} <br>
+              Base XP: {{ pokemon.base_xp }} <br>
+              Base ATK: {{ pokemon.base_atk }} <br>
+              Base HP:{{ pokemon.base_hp }} <br>
+              Base DEF: {{ pokemon.base_def }} <br>
+            </p>
+            <a href="{{ url_for('teamPage', poke_name=pokemon.name) }}" class="btn btn-primary">Remove</a>
+            <!-- <a href="{{ url_for('teamPage', poke_name=pokemon.name) }}" class="btn btn-primary">Release</a> -->
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+
+
+    
+
+
+{% endblock %}

@@ -181,7 +181,7 @@ def profile():
 def editProfileForm():
     form = EditProfileForm()
     user = User.query.filter_by(id = current_user.id).first()
-    print("Hi")
+    
     if request.method == "POST":
         username = form.username.data
         email = form.email.data
@@ -205,6 +205,7 @@ def delProfile():
         if user:
             user.deleteFromDB()
             return redirect(url_for("loginPage"))
+            
     return render_template("editdelete.html") 
 
 @app.route("/posts/<int:post_id>/like", methods=["GET"])
@@ -269,22 +270,31 @@ def myTeam():
     return render_template('team.html', my_pokemon = my_pokemon)
 
 
-# @app.route('/catch/<int:pokemon_id>', methods=["GET", "POST"])
-# @login_required
-# def pokecatch(pokemon_id):
-#     pokemon = Pokemon.query.get(pokemon_id)
+
+@app.route('/otherUser', methods=["GET","POST"])
+@login_required
+def otherUser():
+    other_users = User.query.all()
+
+    return redirect(url_for('getPosts'))
+
+@app.route('/battlePage', methods=["GET", "POST"])
+@login_required
+def battle():
+    my_pokemon = Pokemon.query.join(Team).filter(Team.user_id==current_user.id).all()
     
-#     if pokemon.caught:
-#         flash(f'Sorry, {pokemon.name.title()} has already been caught.', category='warning')
-#     elif Catch.query.filter_by(user_id=current_user.id).count() >= 5:
-#         flash('Sorry, you can only catch up to 5 Pokemon.', category='warning')
-#     else:
-#         catch = Catch(user_id=current_user.id, pokemon_id=pokemon.id)
-#         catch.saveToDB()
-#         pokemon.caught = True
-#         pokemon.saveChanges()
-#         flash(f'{pokemon.name.title()} has been caught and added to your collection.', category='success')
-#     return redirect(url_for('pokemon'))
+   
+    
+    users=User.query.all()
+
+    return render_template('battle.html', my_pokemon = my_pokemon,  users = users)
+
+
+
+
+
+
+
 
 
 @app.route("/news", methods=["GET", "POST"])
